@@ -10,6 +10,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: 8.9 }
       - run: unzip -q Modiriat.zip
+      - run: sed -i 's/2.0.20-1.0.0/2.0.20-1.0.25/' Modiriat/build.gradle.kts
       - run: cd Modiriat && gradle assembleDebug
       - uses: actions/upload-artifact@v4
         with: { name: Modiriat-apk, path: Modiriat/app/build/outputs/apk/debug/*.apk }
