@@ -10,7 +10,16 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: 8.9 }
       - run: unzip -q Modiriat.zip
-      - run: sed -i 's/2.0.20-1.0.0/2.0.20-1.0.25/' Modiriat/build.gradle.kts
-      - run: cd Modiriat && gradle assembleDebug
+      - name: Prepare signing
+        env: { KS_B64: "${{ secrets.KS_B64 }}" }
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/ks.p12"
+            echo "KS_FILE=$RUNNER_TEMP/ks.p12" >> "$GITHUB_ENV"
+          fi
+      - run: cd Modiriat && gradle assembleRelease
+        env:
+          KS_PASS: ${{ secrets.KS_PASS }}
+          KS_ALIAS: ${{ secrets.KS_ALIAS }}
       - uses: actions/upload-artifact@v4
-        with: { name: Modiriat-apk, path: Modiriat/app/build/outputs/apk/debug/*.apk }
+        with: { name: Modiriat-apk, path: Modiriat/app/build/outputs/apk/release/*.apk }
